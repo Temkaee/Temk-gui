@@ -1,54 +1,221 @@
--- !?[TEMKA]¡¿ GUI | Полная рабочая версия local Players, RunService, UIS = game:GetService("Players"), game:GetService("RunService"), game:GetService("UserInputService") local LP = Players.LocalPlayer
+local Players, RunService, UIS = game:GetService("Players"), game:GetService("RunService"), game:GetService("UserInputService")
+local LP = Players.LocalPlayer
 
--- GUI local gui = Instance.new("ScreenGui", game.CoreGui) local main = Instance.new("Frame", gui) main.Size = UDim2.new(0, 400, 0, 300) main.Position = UDim2.new(0.5, -200, 0.5, -150) main.BackgroundColor3 = Color3.fromRGB(25, 25, 25) main.BackgroundTransparency = 0.2 main.Active, main.Draggable = true, true
+-- GUI
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "!?[TEMKA]¡¿ GUI"
 
-local title = Instance.new("TextLabel", main) title.Size = UDim2.new(1, 0, 0, 40) title.Text = "!?[TEMKA]¡¿ GUI" title.BackgroundTransparency = 1 title.TextScaled, title.Font = true, Enum.Font.GothamBold title.Name = "RGB" title.TextColor3 = Color3.new(1,1,1)
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 400, 0, 300)
+main.Position = UDim2.new(0.5, -200, 0.5, -150)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BackgroundTransparency = 0.2
+main.Active, main.Draggable = true, true
 
--- RGB эффект spawn(function() while true do wait() local t = tick() * 2 local color = Color3.fromHSV((t % 5)/5, 1, 1) for _,v in pairs(gui:GetDescendants()) do if v:IsA("TextLabel") or v:IsA("TextButton") then if v.Name == "RGB" then v.TextColor3 = color end end end end end)
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "!?[TEMKA]¡¿ GUI"
+title.BackgroundTransparency = 1
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.Name = "RGB"
+title.TextColor3 = Color3.new(1,1,1)
 
--- Кнопки local function addBtn(text, y, callback) local btn = Instance.new("TextButton", main) btn.Size = UDim2.new(0, 180, 0, 30) btn.Position = UDim2.new(0, 10, 0, y) btn.Text = text btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) btn.TextColor3 = Color3.new(1,1,1) btn.TextScaled = true btn.Font = Enum.Font.GothamBold btn.Name = "RGB" btn.MouseButton1Click:Connect(callback) end
+-- RGB эффект
+spawn(function()
+	while true do
+		wait()
+		local t = tick() * 2
+		local color = Color3.fromHSV((t % 5)/5, 1, 1)
+		for _,v in pairs(gui:GetDescendants()) do
+			if v:IsA("TextLabel") or v:IsA("TextButton") then
+				if v.Name == "RGB" then
+					v.TextColor3 = color
+				end
+			end
+		end
+	end
+end)
 
--- Fly local flying, BV, BG = false, nil, nil local function toggleFly() local char = LP.Character if not char or not char:FindFirstChild("HumanoidRootPart") then return end local HRP = char.HumanoidRootPart if not flying then flying = true BV = Instance.new("BodyVelocity", HRP) BV.MaxForce = Vector3.new(9e9, 9e9, 9e9) BV.Velocity = Vector3.zero BG = Instance.new("BodyGyro", HRP) BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9) BG.CFrame = HRP.CFrame RunService:BindToRenderStep("TEMKA_FLY", Enum.RenderPriority.Character.Value, function() local move = Vector3.zero local cam = workspace.CurrentCamera if UIS:IsKeyDown(Enum.KeyCode.W) then move += cam.CFrame.LookVector end if UIS:IsKeyDown(Enum.KeyCode.S) then move -= cam.CFrame.LookVector end if UIS:IsKeyDown(Enum.KeyCode.A) then move -= cam.CFrame.RightVector end if UIS:IsKeyDown(Enum.KeyCode.D) then move += cam.CFrame.RightVector end if UIS:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then move -= Vector3.new(0,1,0) end BV.Velocity = move.Unit * 60 BG.CFrame = cam.CFrame end) else flying = false if BV then BV:Destroy() end if BG then BG:Destroy() end RunService:UnbindFromRenderStep("TEMKA_FLY") end end
-
--- ESP local function enableESP() for _, player in ipairs(Players:GetPlayers()) do if player ~= LP and player.Character and not player.Character:FindFirstChild("ESP") then local role = player:GetAttribute("Role") or player.Character:FindFirstChild("Role") local color = (tostring(role) == "Murderer") and Color3.new(1,0,0) or Color3.new(0,1,0) local label = Instance.new("BillboardGui", player.Character) label.Name = "ESP" label.Size = UDim2.new(0,100,0,20) label.Adornee = player.Character:FindFirstChild("Head") label.AlwaysOnTop = true local txt = Instance.new("TextLabel", label) txt.Size = UDim2.new(1,0,1,0) txt.BackgroundTransparency = 1 txt.Text = (tostring(role) == "Murderer") and "Убийца" or "Выживший" txt.TextScaled = true txt.Font = Enum.Font.GothamBold txt.TextColor3 = color end end for _, item in pairs(workspace:GetDescendants()) do if item:IsA("BasePart") and string.find(item.Name:lower(), "item") and not item:FindFirstChild("ESP") then local gui = Instance.new("BillboardGui", item) gui.Name = "ESP" gui.Size = UDim2.new(0, 100, 0, 20) gui.Adornee = item gui.AlwaysOnTop = true local txt = Instance.new("TextLabel", gui) txt.Size = UDim2.new(1,0,1,0) txt.Text = "Предмет" txt.BackgroundTransparency = 1 txt.TextScaled = true txt.Font = Enum.Font.GothamBold txt.TextColor3 = Color3.fromRGB(255,255,0) end end end
-
--- Stamina local function infStamina() while true do wait(0.2) local char = LP.Character if char then for _,v in pairs(char:GetDescendants()) do if v:IsA("NumberValue") and v.Name:lower():find("stamina") then v.Value = math.huge end end end end end
-
--- Speed local function toggleSpeed() local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") if h then h.WalkSpeed = (h.WalkSpeed == 16) and 60 or 16 end end
-
--- TP local function tpMenu() for _,plr in pairs(Players:GetPlayers()) do if plr ~= LP then local tpBtn = Instance.new("TextButton", main) tpBtn.Size = UDim2.new(0, 180, 0, 25) tpBtn.Position = UDim2.new(0, 200, 0, 60 + #main:GetChildren()*30) tpBtn.Text = "TP к "..plr.Name tpBtn.TextScaled = true tpBtn.BackgroundColor3 = Color3.fromRGB(35,35,35) tpBtn.TextColor3 = Color3.new(1,1,1) tpBtn.MouseButton1Click:Connect(function() local myHRP = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") local hisHRP = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") if myHRP and hisHRP then myHRP.CFrame = hisHRP.CFrame + Vector3.new(0, 3, 0) end end) end end end
-
--- Анимации local function applyAnimation(id) local char = Players.LocalPlayer.Character if not char then return end local hum = char:FindFirstChildOfClass("Humanoid") if hum then hum:LoadAnimation(Instance.new("Animation", hum)).AnimationId = "rbxassetid://" .. id end end
-
-local function animationMenu() local menu = Instance.new("Frame", main) menu.Size = UDim2.new(0, 180, 0, 150) menu.Position = UDim2.new(0, 210, 0, 60) menu.BackgroundColor3 = Color3.fromRGB(35, 35, 35) menu.Name = "AnimMenu"
-
-local animations = {
-	{Name = "Classic Guest", ID = "507766666"},
-	{Name = "Stalker", ID = "616006778"},
-	{Name = "Stylish", ID = "616136790"},
-	{Name = "Levitation", ID = "616006556"},
-	{Name = "Reset", ID = "0"},
-}
-
-for i, anim in ipairs(animations) do
-	local btn = Instance.new("TextButton", menu)
-	btn.Size = UDim2.new(1, -10, 0, 25)
-	btn.Position = UDim2.new(0, 5, 0, (i - 1) * 28)
-	btn.Text = anim.Name
+-- Кнопки
+local function addBtn(text, y, callback)
+	local btn = Instance.new("TextButton", main)
+	btn.Size = UDim2.new(0, 180, 0, 30)
+	btn.Position = UDim2.new(0, 10, 0, y)
+	btn.Text = text
+	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	btn.TextColor3 = Color3.new(1,1,1)
 	btn.TextScaled = true
 	btn.Font = Enum.Font.GothamBold
-	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	btn.MouseButton1Click:Connect(function()
-		if anim.ID ~= "0" then
-			applyAnimation(anim.ID)
-		else
-			Players.LocalPlayer.Character:BreakJoints()
+	btn.Name = "RGB"
+	btn.MouseButton1Click:Connect(callback)
+end
+-- Fly
+local flying, BV, BG = false, nil, nil
+local function toggleFly()
+	local char = LP.Character
+	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+	local HRP = char.HumanoidRootPart
+	if not flying then
+		flying = true
+		BV = Instance.new("BodyVelocity", HRP)
+		BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+		BV.Velocity = Vector3.zero
+		BG = Instance.new("BodyGyro", HRP)
+		BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+		BG.CFrame = HRP.CFrame
+		RunService:BindToRenderStep("TEMKA_FLY", Enum.RenderPriority.Character.Value, function()
+			local move = Vector3.zero
+			local cam = workspace.CurrentCamera
+			if UIS:IsKeyDown(Enum.KeyCode.W) then move += cam.CFrame.LookVector end
+			if UIS:IsKeyDown(Enum.KeyCode.S) then move -= cam.CFrame.LookVector end
+			if UIS:IsKeyDown(Enum.KeyCode.A) then move -= cam.CFrame.RightVector end
+			if UIS:IsKeyDown(Enum.KeyCode.D) then move += cam.CFrame.RightVector end
+			if UIS:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
+			if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then move -= Vector3.new(0,1,0) end
+			BV.Velocity = move.Unit * 60
+			BG.CFrame = cam.CFrame
+		end)
+	else
+		flying = false
+		if BV then BV:Destroy() end
+		if BG then BG:Destroy() end
+		RunService:UnbindFromRenderStep("TEMKA_FLY")
+	end
+end
+
+-- ESP
+local function enableESP()
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LP and player.Character and not player.Character:FindFirstChild("ESP") then
+			local role = player:GetAttribute("Role") or player.Character:FindFirstChild("Role")
+			local color = (tostring(role) == "Murderer") and Color3.new(1,0,0) or Color3.new(0,1,0)
+			local label = Instance.new("BillboardGui", player.Character)
+			label.Name = "ESP"
+			label.Size = UDim2.new(0,100,0,20)
+			label.Adornee = player.Character:FindFirstChild("Head")
+			label.AlwaysOnTop = true
+			local txt = Instance.new("TextLabel", label)
+			txt.Size = UDim2.new(1,0,1,0)
+			txt.BackgroundTransparency = 1
+			txt.Text = (tostring(role) == "Murderer") and "Убийца" or "Выживший"
+			txt.TextScaled = true
+			txt.Font = Enum.Font.GothamBold
+			txt.TextColor3 = color
 		end
-	end)
+	end
+	for _, item in pairs(workspace:GetDescendants()) do
+		if item:IsA("BasePart") and string.find(item.Name:lower(), "item") and not item:FindFirstChild("ESP") then
+			local gui = Instance.new("BillboardGui", item)
+			gui.Name = "ESP"
+			gui.Size = UDim2.new(0, 100, 0, 20)
+			gui.Adornee = item
+			gui.AlwaysOnTop = true
+			local txt = Instance.new("TextLabel", gui)
+			txt.Size = UDim2.new(1,0,1,0)
+			txt.Text = "Предмет"
+			txt.BackgroundTransparency = 1
+			txt.TextScaled = true
+			txt.Font = Enum.Font.GothamBold
+			txt.TextColor3 = Color3.fromRGB(255,255,0)
+		end
+	end
 end
 
+-- Infinity Stamina
+local function infStamina()
+	while true do
+		wait(0.2)
+		local char = LP.Character
+		if char then
+			for _,v in pairs(char:GetDescendants()) do
+				if v:IsA("NumberValue") and v.Name:lower():find("stamina") then
+					v.Value = math.huge
+				end
+			end
+		end
+	end
 end
 
--- Кнопки GUI addBtn("Fly вкл/выкл", 60, toggleFly) addBtn("ESP (роли + предметы)", 100, enableESP) addBtn("Infinity Stamina", 140, infStamina) addBtn("SpeedHack", 180, toggleSpeed) addBtn("TP к игроку", 220, tpMenu) addBtn("Анимации", 260, animationMenu)
+-- SpeedHack
+local function toggleSpeed()
+	local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+	if h then
+		h.WalkSpeed = (h.WalkSpeed == 16) and 60 or 16
+	end
+end
 
+-- Teleport to player
+local function tpMenu()
+	for _,plr in pairs(Players:GetPlayers()) do
+		if plr ~= LP then
+			local tpBtn = Instance.new("TextButton", main)
+			tpBtn.Size = UDim2.new(0, 180, 0, 25)
+			tpBtn.Position = UDim2.new(0, 200, 0, 60 + #main:GetChildren()*30)
+			tpBtn.Text = "TP к "..plr.Name
+			tpBtn.TextScaled = true
+			tpBtn.BackgroundColor3 = Color3.fromRGB(35,35,35)
+			tpBtn.TextColor3 = Color3.new(1,1,1)
+			tpBtn.MouseButton1Click:Connect(function()
+				local myHRP = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+				local hisHRP = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+				if myHRP and hisHRP then
+					myHRP.CFrame = hisHRP.CFrame + Vector3.new(0, 3, 0)
+				end
+			end)
+		end
+	end
+end
+-- Анимации
+local function applyAnimation(id)
+	local char = Players.LocalPlayer.Character
+	if not char then return end
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	if hum then
+		local anim = Instance.new("Animation")
+		anim.AnimationId = "rbxassetid://" .. id
+		hum:LoadAnimation(anim):Play()
+	end
+end
+
+local function animationMenu()
+	local menu = Instance.new("Frame", main)
+	menu.Size = UDim2.new(0, 180, 0, 150)
+	menu.Position = UDim2.new(0, 210, 0, 60)
+	menu.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	menu.Name = "AnimMenu"
+
+	local animations = {
+		{Name = "Classic Guest", ID = "507766666"},
+		{Name = "Stalker", ID = "616006778"},
+		{Name = "Stylish", ID = "616136790"},
+		{Name = "Levitation", ID = "616006556"},
+		{Name = "Reset", ID = "0"},
+	}
+
+	for i, anim in ipairs(animations) do
+		local btn = Instance.new("TextButton", menu)
+		btn.Size = UDim2.new(1, -10, 0, 25)
+		btn.Position = UDim2.new(0, 5, 0, (i - 1) * 28)
+		btn.Text = anim.Name
+		btn.TextScaled = true
+		btn.Font = Enum.Font.GothamBold
+		btn.TextColor3 = Color3.new(1, 1, 1)
+		btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		btn.MouseButton1Click:Connect(function()
+			if anim.ID ~= "0" then
+				applyAnimation(anim.ID)
+			else
+				Players.LocalPlayer.Character:BreakJoints()
+			end
+		end)
+	end
+end
+
+-- Кнопки GUI
+addBtn("Fly вкл/выкл", 60, toggleFly)
+addBtn("ESP (роли + предметы)", 100, enableESP)
+addBtn("Infinity Stamina", 140, infStamina)
+addBtn("SpeedHack", 180, toggleSpeed)
+addBtn("TP к игроку", 220, tpMenu)
+addBtn("Анимации", 260, animationMenu)
