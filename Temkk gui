@@ -213,9 +213,9 @@ local function animationMenu()
 end
 
 -- Кнопки GUI
-addBtn("Fly вкл/выкл", 60, toggleFly)
-addBtn("ESP (роли + предметы)", 100, enableESP)
-addBtn("Infinity Stamina", 140, infStamina)
-addBtn("SpeedHack", 180, toggleSpeed)
-addBtn("TP к игроку", 220, tpMenu)
-addBtn("Анимации", 260, animationMenu)
+addBtn("ФЛАЙ вкл/выкл", 60, toggleFly)
+addBtn("ESP", 100, enableESP)
+addBtn("бесканечная стамина", 140, infStamina)
+addBtn("Спидхак", 180, toggleSpeed)
+addBtn("Телепортация", 220, tpMenu)
+addBtn("анимация", 260, animationMenu)
